@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".main.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -22,10 +23,10 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Module测试" />
+            android:value="企业微信核心推送模块" />
         <meta-data
             android:name="xposedminversion"
-            android:value="54" />
+            android:value="82" />
 
         <activity
             android:name="com.example.xposed.main.MainActivity"
@@ -33,18 +34,29 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name="com.example.xposed.wework.services.MessageService"
-            android:label="支付测试"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-        </service>
 
+        <!--<service-->
+            <!--android:name="com.example.xposed.wework.services.MessageService"-->
+            <!--android:label="消息接受"-->
+            <!--android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.accessibilityservice.AccessibilityService" />-->
+            <!--</intent-filter>-->
+            <!--<meta-data-->
+                <!--android:name="android.accessibilityservice"-->
+                <!--android:resource="@xml/accessibility" />-->
+        <!--</service>-->
+
+        <!--<service-->
+            <!--android:name=".wework.services.MyNotificationListenerService"-->
+            <!--android:label="@string/app_name"-->
+            <!--android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.service.notification.NotificationListenerService" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
     </application>
 </manifest>

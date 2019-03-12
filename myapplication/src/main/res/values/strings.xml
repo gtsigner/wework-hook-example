@@ -1,4 +1,10 @@
 <resources>
-    <string name="app_name">Test</string>
+    <string name="app_name">企业微信助手</string>
     <string name="action_settings">Settings</string>
+    <string name="accessibility_description">企业微信红包助手，帮助你实现在企业微信中，自动抢个人红包和群红包</string>
+    <string name="http_xxx_3008">输入服务器地址：http://xxx:3008/</string>
+    <string name="apptoken">输入appToken</string>
+    <string name="info">企业微信助手运行中</string>
+    <string name="save">保存配置</string>
+    <string name="appid">后台AppID</string>
 </resources>

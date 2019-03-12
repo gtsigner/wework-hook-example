@@ -1,1 +1,2 @@
-com.example.xposed.hook.HookMain
+com.example.xposed.wework.HookMain
+com.example.xposed.base.AppInitHook

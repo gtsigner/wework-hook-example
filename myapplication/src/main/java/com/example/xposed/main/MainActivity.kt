@@ -3,19 +3,26 @@ package com.example.xposed.main
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.View
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.example.aidl.IWeWorkService
 
 import com.example.xposed.R
+import com.example.xposed.core.Logger
+import com.example.xposed.core.Socker
+import com.example.xposed.core.WeWorkService
+import com.example.xposed.wework.tests.Request
+import kotlin.concurrent.thread
 
 @SuppressLint("Registered")
 class MainActivity : AppCompatActivity() {
+
+
+    val socker = Socker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,14 +31,18 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val fab = findViewById<View>(R.id.fab) as FloatingActionButton
+
+
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-            val str = showToast()
-            Toast.makeText(this@MainActivity, str, Toast.LENGTH_SHORT).show()
-            fuckYou("123123123")
+            //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+            val service = WeWorkService.getService() as IWeWorkService
+            socker.connect()
+            thread(true) {
+
+                Logger.debug("Request", Request.run("http://192.168.10.161:3008"))
+            }
         }
-        Log.d("godtoy", "HellWOrld")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
