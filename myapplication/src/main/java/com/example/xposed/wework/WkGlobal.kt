@@ -1,6 +1,8 @@
 package com.example.xposed.wework
 
+import com.example.aidl.IWeWorkService
 import com.example.xposed.base.WaitChannel
+import com.example.xposed.core.WeWorkService
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 
@@ -42,4 +44,8 @@ object WkGlobal {
 
     lateinit var xpParam: XC_LoadPackage.LoadPackageParam
 
+    /**
+     * WorkService
+     */
+    val weWorkService = WeWorkService.getService() as IWeWorkService
 }

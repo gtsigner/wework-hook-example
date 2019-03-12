@@ -1,13 +1,14 @@
-package com.example.xposed.wework.hooker
+package com.example.xposed.wework
 
 import com.bugfender.sdk.Bugfender
-import com.example.aidl.IWeWorkCallBack
+import com.example.aidl.IWeWorkEmitListener
 import com.example.xposed.core.Logger
 import com.example.xposed.core.WeWorkService
+import com.example.xposed.core.WkClientType
+import com.example.xposed.core.WkEvent
 import com.example.xposed.main.MainActivity
-import com.example.xposed.wework.HookVersion
-import com.example.xposed.wework.WkGlobal
-import com.example.xposed.wework.WkObject
+import com.example.xposed.wework.main.HookVersion
+import com.example.xposed.wework.hooker.MessageHooker
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
@@ -38,26 +39,26 @@ object MainHooker {
          * 企业微信
          */
         if (lpparam.packageName == "com.tencent.wework" && lpparam.processName == "com.tencent.wework") {
-            try {
-                XposedHelpers.findClass(WkObject.Message.C.SQLiteDatabase, lpparam.classLoader)
-                //全局
-                WkGlobal.classLoader = lpparam.classLoader
-                WkGlobal.workLoader = lpparam.classLoader
-                WkGlobal.xpParam = lpparam
-                this.lpparam = lpparam
-                startHookWeWork(lpparam)
-                //回调
-                val service = WeWorkService.getService()
-                service?.weWorkReady()
-                service?.registerCallback(object : IWeWorkCallBack.Stub() {
-                    override fun onMessage(type: Int, what: Int, message: String) {
-                        Logger.debug("OnMessage", message)
-                    }
-                })
-            } catch (ex: Exception) {
-                XposedBridge.log(ex.message)
-            }
+            weworkHandle(lpparam)
+        }
+    }
 
+
+    /**
+     * 处理企业微信的Hook
+     */
+    private fun weworkHandle(lpparam: XC_LoadPackage.LoadPackageParam) {
+        try {
+            XposedHelpers.findClass(WkObject.Message.C.SQLiteDatabase, lpparam.classLoader)
+            //全局
+            WkGlobal.classLoader = lpparam.classLoader
+            WkGlobal.workLoader = lpparam.classLoader
+            WkGlobal.xpParam = lpparam
+            MainHooker.lpparam = lpparam
+            startHookWeWork(lpparam)
+
+        } catch (ex: Exception) {
+            XposedBridge.log(ex.message)
         }
     }
 
@@ -70,7 +71,7 @@ object MainHooker {
     @Throws(ClassNotFoundException::class)
     private fun startHookWeWork(lpparam: XC_LoadPackage.LoadPackageParam) {
         XposedBridge.log("企业微信版本号: 0.1----Xposed版本号:${XposedBridge.getXposedVersion()}")
-        Task.start()
+        TaskHandler.start()
         val service = WeWorkService.getService()
 
         arrayOf("ecz").forEach {

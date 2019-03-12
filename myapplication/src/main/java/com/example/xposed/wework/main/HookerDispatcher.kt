@@ -1,7 +1,7 @@
-package com.example.xposed.wework
+package com.example.xposed.wework.main
 
 import com.example.xposed.core.Logger
-import com.example.xposed.wework.hooker.MainHooker
+import com.example.xposed.wework.MainHooker
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.androidwing.hotxposed.IHookerDispatcher
 

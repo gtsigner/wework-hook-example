@@ -1,4 +1,4 @@
-package com.example.xposed.wework
+package com.example.xposed.wework.main
 
 object HookVersion {
     fun getClasses(name: String) {

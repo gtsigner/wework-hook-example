@@ -1,7 +1,7 @@
 package com.example.xposed.wework.util
 
 import android.content.Context
-import com.example.xposed.wework.HookVersion
+import com.example.xposed.wework.main.HookVersion
 
 object AppUtil {
     /**

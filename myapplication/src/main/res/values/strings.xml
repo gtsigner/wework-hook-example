@@ -4,7 +4,11 @@
     <string name="accessibility_description">企业微信红包助手，帮助你实现在企业微信中，自动抢个人红包和群红包</string>
     <string name="http_xxx_3008">输入服务器地址：http://xxx:3008/</string>
     <string name="apptoken">输入appToken</string>
-    <string name="info">企业微信助手运行中</string>
     <string name="save">保存配置</string>
     <string name="appid">后台AppID</string>
+    <string name="current_username">当前用户：</string>
+    <string name="test_send_msg">测试发送数据</string>
+    <string name="message_content">输入消息内容</string>
+    <string name="message_reciveId">接受ID</string>
+    <string name="msg_send_all">群发给所有人</string>
 </resources>

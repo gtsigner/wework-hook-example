@@ -1,4 +1,4 @@
-package com.example.xposed.wework.bean
+package com.example.xposed.common.bean
 
 //用户信息
 class Member {

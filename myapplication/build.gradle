@@ -66,12 +66,13 @@ dependencies {
     //socket.io
     implementation 'io.socket:socket.io-client:1.0.0'
     //socket.io 服务端
-//    implementation 'com.corundumstudio.socketio:netty-socketio:1.7.17'
+    //    implementation 'com.corundumstudio.socketio:netty-socketio:1.7.17'
     //老版本，新版本支持N 24+
     implementation 'com.squareup.okhttp3:okhttp:2.6.0'
     //
     implementation 'com.github.githubwing:HotXposed:v1.0.0'
-//    implementation project(':hotxposed')
+    //    implementation project(':hotxposed')
+    implementation 'com.alibaba:fastjson:1.2.56'
 }
 
 repositories {

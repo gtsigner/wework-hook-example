@@ -1,9 +1,10 @@
-package com.example.xposed.wework.bean
+package com.example.xposed.common.bean
 
 //群组
 class ContactGroup {
     var id: Long = -1
     var remoteId: Long = -1
+    var localId: Long = -1
     var name: String = ""
     var avatar: String = ""
     var type: Int = 0
