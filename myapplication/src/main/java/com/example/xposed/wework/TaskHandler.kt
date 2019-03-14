@@ -15,7 +15,9 @@ import com.example.xposed.wework.hooker.MessageHooker
 import java.util.*
 import kotlin.concurrent.thread
 
-
+/**
+ * Handler
+ */
 object TaskHandler {
     object MessageType {
         const val IntvalTime = 1

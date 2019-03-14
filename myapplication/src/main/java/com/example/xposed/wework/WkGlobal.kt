@@ -48,4 +48,5 @@ object WkGlobal {
      * WorkService
      */
     val weWorkService = WeWorkService.getService() as IWeWorkService
+    val taskHandler = TaskHandler
 }

@@ -9,6 +9,7 @@ import com.example.xposed.core.WkEvent
 import com.example.xposed.main.MainActivity
 import com.example.xposed.wework.main.HookVersion
 import com.example.xposed.wework.hooker.MessageHooker
+import com.example.xposed.wework.util.AppUtil
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
@@ -62,6 +63,7 @@ object MainHooker {
         }
     }
 
+    const val supportedVersion = "2.7.5"
 
     /**
      * 启动weWorkHook
@@ -70,18 +72,10 @@ object MainHooker {
      */
     @Throws(ClassNotFoundException::class)
     private fun startHookWeWork(lpparam: XC_LoadPackage.LoadPackageParam) {
-        XposedBridge.log("企业微信版本号: 0.1----Xposed版本号:${XposedBridge.getXposedVersion()}")
+        val versionName = AppUtil.getApplicationVersion(lpparam.packageName)
+        XposedBridge.log("版本号:$versionName,Xposed版本号:${XposedBridge.getXposedVersion()}")
         TaskHandler.start()
         val service = WeWorkService.getService()
-
-        arrayOf("ecz").forEach {
-            try {
-                findClasses(lpparam, it)
-                XposedBridge.log("---Find Success：$it")
-            } catch (ex: Exception) {
-                XposedBridge.log("类没有找到：" + ex.message + "   ---- " + it)
-            }
-        }
 
         //消息Hook
         MessageHooker.executeHook()

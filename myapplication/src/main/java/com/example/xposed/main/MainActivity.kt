@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
             val message = Message()
             message.reciverId = 0
             message.message = txtInput.text.toString()
-            app.service.send(WkClientType.WeWork, WkEvent.WK_CMD_SEND_MESSAGE, JSON.toJSONString(message))
+            app.service?.send(WkClientType.WeWork, WkEvent.WK_CMD_SEND_MESSAGE, JSON.toJSONString(message))
             txtInput.text.clear()
         }
 
@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             val message = Message()
             message.reciverId = idInput.text.toString().toLong()
             message.message = txtInput.text.toString()
-            app.service.send(WkClientType.WeWork, WkEvent.WK_CMD_SEND_MESSAGE, JSON.toJSONString(message))
+            app.getWkService()?.send(WkClientType.WeWork, WkEvent.WK_CMD_SEND_MESSAGE, JSON.toJSONString(message))
             txtInput.text.clear()
         }
         fab.setOnClickListener { view ->
