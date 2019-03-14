@@ -1,0 +1,3 @@
+com.wework.xposed.base.AppInitHook
+com.wework.xposed.base.HookMain
+
