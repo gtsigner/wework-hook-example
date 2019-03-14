@@ -44,6 +44,16 @@ object WkGlobal {
 
     lateinit var xpParam: XC_LoadPackage.LoadPackageParam
 
+
+    //全局包
+    const val X_PACKAGE_NAME: String = "com.example.xposed"
+
+    const val X_WK_PACKAGE_NAME: String = "com.tencent.wework"
+    //企业微信进程名
+    const val X_WK_PROCESS_NAME: String = "com.tencent.wework"
+    //支持企业微信的版本
+    const val X_WK_supportedVersion = "2.7.2"
+
     /**
      * WorkService
      */

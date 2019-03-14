@@ -1,5 +1,5 @@
 package com.example.xposed.wework.hooker
 
-interface BaseHooker {
+interface Hooker {
     fun executeHook()
 }

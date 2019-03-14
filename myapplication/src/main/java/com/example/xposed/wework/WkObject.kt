@@ -1,5 +1,7 @@
 package com.example.xposed.wework
 
+import de.robv.android.xposed.XposedHelpers
+
 /**
  * 全局方法
  */
@@ -33,8 +35,8 @@ object WkObject {
 
         object M {
             const val GetInstance = "cfh"
-            const val GetConversationService="aAh"
-            const val GetDepartmentService="getDepartmentService"
+            const val GetConversationService = "aAh"
+            const val GetDepartmentService = "getDepartmentService"
         }
     }
 
@@ -50,4 +52,22 @@ object WkObject {
         }
     }
 
+    /**
+     * 获取类
+     */
+    fun getClass(className: String): Class<*>? {
+        return XposedHelpers.findClass(className, WkGlobal.workLoader)
+    }
+
+    /**
+     * 获取单例模式得实例
+     */
+    fun getInstanceByStaticMethod(className: String, instanceMethod: String): Any? {
+        val cls = getClass(className)
+        return XposedHelpers.callStaticMethod(cls, instanceMethod)
+    }
+
+    fun getInstanceNew() {
+
+    }
 }

@@ -17,7 +17,7 @@ interface HookerProvider {
      * 只有在某个插件要求监听某个事件的情况下, 对应的钩子才会被注册, 在目前的版本中, 只有 [EventCenter] 才需要实
      * 现该方法
      *
-     * WARN: 对于同一个事件, 请返回相同的 MainHooker 对象, 这样可以有效避免重复的 hook 行为, 根除潜在的 Bug
+     * WARN: 对于同一个事件, 请返回相同的 Main 对象, 这样可以有效避免重复的 hook 行为, 根除潜在的 Bug
      */
     fun provideEventHooker(event: String): Hooker? = null
 }

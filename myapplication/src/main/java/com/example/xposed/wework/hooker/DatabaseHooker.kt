@@ -9,7 +9,11 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 
-object DataBase {
+object DatabaseHooker : Hooker {
+    override fun executeHook() {
+
+    }
+
     fun hookDb() {
         val database = XposedHelpers.findClass(WkObject.Message.C.SQLiteDatabase, WkGlobal.classLoader)
         val databaseFactory = XposedHelpers.findClass(WkObject.Message.C.SQLiteDatabaseCursorFactory, WkGlobal.classLoader)

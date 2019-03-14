@@ -1,22 +1,30 @@
-package com.example.xposed.wework.hooker
+package com.example.xposed.wework.wxapi
 
 import com.example.xposed.common.bean.ContactGroup
 import com.example.xposed.common.bean.GroupMember
 import com.example.xposed.wework.WkGlobal
+import com.example.xposed.wework.hook.ServiceUtil
+import com.example.xposed.wework.hooker.MessageHooker
+import com.example.xposed.wework.util.ConversationUtil
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import java.security.acl.Group
 import java.util.ArrayList
-import java.util.logging.Logger
 
-object ConversationHelper {
+/**
+ * 封装了微信的一些Api接口
+ */
+object ConversationApi {
 
-    fun getCoversationFromLocalId(lid: Long) {
+    /**
+     * 获取联系人
+     */
+    fun getCoversationItemFromRemoteId(remoteId: Long): ContactGroup? {
+        //会话引擎
+        val engine = ServiceUtil.getCoversationEngineInstance()
+        val obj = XposedHelpers.callMethod(engine, "iT", remoteId) ?: return null
 
-    }
-
-    fun getCoversationFromRemoteId(remoteId: Long) {
-
+        ConversationUtil.covertConversionItemInfoToContactGroup(obj)
+        return null
     }
 
     /**
@@ -38,7 +46,7 @@ object ConversationHelper {
             val list = rr2 as Array<*>
             list.forEach { convItm ->
                 if (convItm == null) return@forEach
-
+                //conversionItem
                 val group = getGroupInfoByConversionGroupEntry(convItm)
                         ?: return@forEach
                 conversionList.add(group)
@@ -81,7 +89,8 @@ object ConversationHelper {
     private fun getUserListByConversionGroupEntry(convItm: Any): List<GroupMember> {
         val members = getMemberListByConversionGroupEntry(convItm)
         val listMembers = ArrayList<GroupMember>()
-        val group = getGroupInfoByConversionGroupEntry(convItm) ?: return listMembers
+        val group = getGroupInfoByConversionGroupEntry(convItm)
+                ?: return listMembers
 
         //获取这个里面的id
         val ids = LongArray(members.size)
@@ -113,6 +122,7 @@ object ConversationHelper {
 
     /**
      * 解析Group信息
+     * @param convItm 联系会话实例
      */
     private fun getGroupInfoByConversionGroupEntry(convItm: Any): ContactGroup? {
         val info = XposedHelpers.callMethod(convItm, "getInfo") ?: return null
@@ -136,4 +146,6 @@ object ConversationHelper {
         group.memberCount = memberCount
         return group
     }
+
+
 }

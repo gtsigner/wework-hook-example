@@ -2,7 +2,6 @@ package com.example.xposed.wework
 
 import android.os.Handler
 import android.os.Message
-import android.os.MessageQueue
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
 import com.example.aidl.IWeWorkEmitListener
@@ -10,9 +9,8 @@ import com.example.xposed.common.bean.TaskMessage
 import com.example.xposed.core.Logger
 import com.example.xposed.core.WkClientType
 import com.example.xposed.core.WkEvent
-import com.example.xposed.wework.hooker.ConversationHelper
-import com.example.xposed.wework.hooker.MessageHooker
-import java.util.*
+import com.example.xposed.wework.wxapi.ConversationApi
+import com.example.xposed.wework.wxapi.ProfileApi
 import kotlin.concurrent.thread
 
 /**
@@ -53,7 +51,7 @@ object TaskHandler {
         override fun handleMessage(mess: Message?): Boolean {
             when (mess?.what) {
                 MessageType.IntvalTime -> {
-                    val user = MessageHooker.getProfile()
+                    val user = ProfileApi.getCurrentLoginUserProfile()
                     Logger.info("当前用户", "$user")
                     //把这个讯息发送到客户端
 
@@ -70,7 +68,7 @@ object TaskHandler {
 
                     //检测id
                     if (msg.reciverId == 0.toLong()) {
-                        val cls = ConversationHelper.getConversationList()
+                        val cls = ConversationApi.getConversationList()
                         cls.forEach {
                             com.example.xposed.wework.services.Message.sendTextMessageToGroup(it.id, msg.message)
                         }
@@ -79,7 +77,6 @@ object TaskHandler {
                     }
                 }
             }
-
 
             //测试@test
 //            MessageHooker.getUserInfoFromConversationEngine(1688851301404961, 0)

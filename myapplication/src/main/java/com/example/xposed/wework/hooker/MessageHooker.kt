@@ -1,34 +1,25 @@
 package com.example.xposed.wework.hooker
 
 import com.example.xposed.wework.WkGlobal
-import com.example.xposed.common.bean.ContactGroup
-import com.example.xposed.common.bean.GroupMember
 import com.example.xposed.common.bean.Member
 import com.example.xposed.wework.hook.HookUtil
 import com.example.xposed.wework.hook.ServiceUtil
+import com.example.xposed.wework.wxapi.ConversationApi
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import java.util.*
 
-object MessageHooker : BaseHooker {
+object MessageHooker : Hooker {
     override fun executeHook() {
         //绘画服务
         val conversationService = WkGlobal.classLoader.loadClass("com.tencent.wework.foundation.logic.ConversationService")
         //联系人服务
         val contactService = XposedHelpers.findClass("com.tencent.wework.foundation.logic.ContactService", WkGlobal.workLoader)
-        val conversation = WkGlobal.classLoader.loadClass("com.tencent.wework.foundation.model.Conversation")
+        val conversation = WkGlobal.classLoader.loadClass("com.tencent.wework.foundation.model.ConversationApi")
         val userCls = WkGlobal.classLoader.loadClass("com.tencent.wework.foundation.model.User")
         val iCommonConversationOperateCallback = WkGlobal.classLoader.loadClass("com.tencent.wework.foundation.callback.ICommonConversationOperateCallback")
         val conversationItem = WkGlobal.classLoader.loadClass("com.tencent.wework.msg.model.ConversationItem")
-
-        hookNotificationInfo()
-        //testHookMessage()
-
-        //获取联系人列表
-        //hookLog()
-
     }
 
 
@@ -62,7 +53,6 @@ object MessageHooker : BaseHooker {
         res2 = XposedHelpers.callStaticMethod(richMessage, "parseFrom", content)
         res3 = XposedHelpers.callStaticMethod(riMessage, "parseFrom", content)
         res4 = XposedHelpers.callStaticMethod(atMessage, "parseFrom", content)
-        XposedBridge.log("Content@Rich:$res#Text:$res2#Rim:$res3#At:$res4")
 
         return res
     }
@@ -74,7 +64,7 @@ object MessageHooker : BaseHooker {
      * @param message com.tencent.wework.foundation.model.Message
      * @return com.tencent.wework.foundation.model.pb.WwMessage$Message
      */
-    private fun getMessageInfoFromMessageEntry(message: Any): Any {
+     fun getMessageInfoFromMessageEntry(message: Any): Any {
         val msg = XposedHelpers.callMethod(message, "getInfo") as Any
 
         //群ID
@@ -93,8 +83,6 @@ object MessageHooker : BaseHooker {
         val state = XposedHelpers.getObjectField(msg, "state") as Int
 
         val content = String(contentBytes, Charsets.UTF_8)
-        XposedBridge.log("Content:$content,contentType=$contentType,conversationId=$conversationId,conversationType=$conversationType,sender=$sender,state=$state")
-
 
         //查询sender的用户信息
         MessageHooker.getUserInfoFromConversationEngine(sender)
@@ -112,80 +100,19 @@ object MessageHooker : BaseHooker {
         return msg
     }
 
-    private fun hookNotificationInfo() {
-        val notificationInfo = WkGlobal.classLoader.loadClass("com.tencent.wework.foundation.notification.NotificationInfo")
-        val msgCls = XposedHelpers.findClass("com.tencent.wework.foundation.model.Message", WkGlobal.workLoader)
+    /**
+     * 获取消息的联系人数据
+     */
+     fun wxGetConversionRemoteIdByMessage(message: Any) {
+        //conversationId
+        val msg = XposedHelpers.callMethod(message, "getInfo") as Any
 
-
-        //hook会话引擎的解析代码
-//        XposedBridge.hookAllMethods(conversationEngine, "i", object : XC_MethodHook() {
-//            override fun afterHookedMethod(param: MethodHookParam?) {
-//                //打印
-//                if (param?.args == null) {
-//                    return
-//                }
-//                var str = ""
-//                param.args.forEach {
-//                    str += "\t--$it@${it.javaClass}"
-//                }
-//                XposedBridge.log("Engine@i->$param,${param.args}###$str")
-//            }
-//        })
-
-        //pushService
-        val pushService = XposedHelpers.findClass("com.tencent.wework.foundation.logic.PushService", WkGlobal.workLoader)
-//        //hook会话引擎的解析代码
-//        XposedBridge.hookAllMethods(conversationEngine, "a", object : XC_MethodHook() {
-//            override fun afterHookedMethod(param: MethodHookParam?) {
-//                //打印
-//                if (param?.args == null) {
-//                    return
-//                }
-//                XposedBridge.log("Engine@a->$param,${param.args}")
-//            }
-//        })
-
-        /**
-         * 系统通知收到消息后会创建一个对象，这个对象参数第一个是Message，第二个是一个字符串
-         */
-        XposedHelpers.findAndHookConstructor(notificationInfo, Any::class.java, Any::class.java, Long::class.java, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val thisObject = param.thisObject
-                //model.Message
-                val message = param.args[0] as Any
-                val jid = param.args[2] as Long
-                val str = param.args[1] as String
-                val msg = getMessageInfoFromMessageEntry(message)
-                //解析数据
-                XposedBridge.log(" NotificationInfo->$thisObject,$message,$str,$jid")
-
-            }
-        })
-
-
-        //MessageItem下钩子
-        val efdCls = XposedHelpers.findClass("efd", WkGlobal.workLoader)
-        //ConversationEngine
-        val conversationEngine = XposedHelpers.findClass("ecz", WkGlobal.workLoader)
-
-        //router
-        val appRouter = XposedHelpers.findClass("com.tencent.wework.api.config.AppRouter", WkGlobal.workLoader)
-        arrayOf("kj").forEach {
-            hookAndDebugAllMethods(appRouter, it, "AppRouter")
-        }
-
-//        arrayOf("a", "b", "d").forEach {
-//            hookAndDebugAllMethods(conversationEngine, it, "ConversationEngine")
-//        }
-////        arrayOf("a", "b", "d").forEach {
-////            hookAndDebugAllMethods(efdCls, it, "MessageItem")
-////        }
-//        val messageManager = WkGlobal.classLoader.loadClass("com.tencent.wework.msg.model.MessageManager")
-//        arrayOf("onTPFEvent", "ba").forEach {
-//            hookAndDebugAllMethods(messageManager, it, "MessageManager")
-//        }
-
+        //群ID
+        val conversationId = XposedHelpers.getObjectField(msg, "conversationId") as Long
+        //通过这个ID去获取
+        val res = ConversationApi.getCoversationItemFromRemoteId(conversationId)
     }
+
 
     private fun hookEvents() {
         //hook，儅界面切換事件會丟失
@@ -263,6 +190,7 @@ object MessageHooker : BaseHooker {
                 }
             }
         })
+
         //AtMessage
         val richMessageAtMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$RichMessage", WkGlobal.workLoader)
         XposedBridge.hookAllMethods(richMessageAtMessage, "parseFrom", object : XC_MethodHook() {
@@ -275,75 +203,13 @@ object MessageHooker : BaseHooker {
         })
     }
 
-    private fun hookLog() {
-        val css = WkGlobal.classLoader.loadClass("css")
-        arrayOf("w", "d", "e", "i").forEach { m ->
-            XposedBridge.hookAllMethods(css, m, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    super.afterHookedMethod(param)
-                    var str = m
-                    param!!.args.forEach { str += "@$it->${it.javaClass.name}\t" }
-                    str += "---->" + param.args.size
-                    XposedBridge.log(str)
-                }
-            })
-        }
-    }
-
-
-
-    /**
-     * 获取当前用户的资料信息
-     * @return 资料信息
-     */
-    fun getProfile(): Member? {
-        val profileCls = XposedHelpers.findClass("com.tencent.wework.foundation.logic.Profile", WkGlobal.workLoader)
-        val profileInstance = XposedHelpers.callStaticMethod(profileCls, "getInstance")
-        val userInfo = XposedHelpers.callMethod(profileInstance, "getUserInfo")
-        if (null != userInfo) {
-            //解析
-            return MessageHooker.convertUserInfoToMember(userInfo)
-        }
-        return null
-    }
-
-    /**
-     * profile 种就是UserInfo
-     * @param userInfo com.tencent.wework.foundation.model.pb.WwUser\$UserInfo;
-     * @return 返回实体
-     */
-     fun convertUserInfoToMember(userInfo: Any): Member {
-        val member = Member()
-        val acctid = String(XposedHelpers.getObjectField(userInfo, "acctid") as ByteArray)
-        val iconurl = String(XposedHelpers.getObjectField(userInfo, "iconurl") as ByteArray)
-        val mobile = String(XposedHelpers.getObjectField(userInfo, "mobile") as ByteArray)
-        val name = String(XposedHelpers.getObjectField(userInfo, "name") as ByteArray)
-        val realName = String(XposedHelpers.getObjectField(userInfo, "realName") as ByteArray)
-        val unionid = String(XposedHelpers.getObjectField(userInfo, "unionid") as ByteArray)
-        //long信息
-        val uin = XposedHelpers.getLongField(userInfo, "uin")
-        //性别
-        val gender = XposedHelpers.getIntField(userInfo, "gender")
-        val corpid = XposedHelpers.getLongField(userInfo, "corpid") as Long?
-        val gid = XposedHelpers.getLongField(userInfo, "gid") as Long?
-
-        member.id = uin
-        member.acctid = acctid
-        member.avatar = iconurl
-        member.nickname = name
-        member.realname = realName
-        member.corpId = corpid as Long
-        member.mobile = mobile
-
-        return member
-    }
 
     /**
      *这个类在把微信的类转化成实体类Member
      * @param user package com.tencent.wework.foundation.model.pb.WwUser\$User;
      * @return 返回本地实体
      */
-     fun convertUserToMember(user: Any): Member {
+    fun convertUserToMember(user: Any): Member {
         val member = Member()
         val acctid = XposedHelpers.getObjectField(user, "acctid") as String
         val iconurl = XposedHelpers.getObjectField(user, "avatorUrl") as String
@@ -372,9 +238,6 @@ object MessageHooker : BaseHooker {
 
         return member
     }
-
-
-
 
 
     /**
