@@ -25,4 +25,6 @@ class GroupMember {
     var gender = 0
     //加入事件
     var joinTime: Long = -1
+
+    var optId: Long = -1
 }

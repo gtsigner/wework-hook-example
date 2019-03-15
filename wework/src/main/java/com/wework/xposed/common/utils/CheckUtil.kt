@@ -4,11 +4,20 @@ package com.wework.xposed.common.utils
 import android.os.Looper
 
 import com.wework.xposed.core.Logger
+import java.lang.Exception
 
 import java.lang.reflect.InvocationTargetException
 
 
 object CheckUtil {
+    fun prepare() {
+        try {
+            Looper.prepare()
+        } catch (ex: Exception) {
+            ex.message
+        }
+    }
+
     private val sConfig = Config
 
     //1. 通过ActivityThread中的currentActivityThread()方法得到ActivityThread的实例对象

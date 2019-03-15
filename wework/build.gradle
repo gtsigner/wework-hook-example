@@ -74,6 +74,7 @@ dependencies {
     //    implementation project(':hotxposed')
     implementation 'com.alibaba:fastjson:1.2.56'
     implementation 'com.github.briandilley.jsonrpc4j:jsonrpc4j:1.5.3'
+    implementation 'org.kie.modules:com-google-code-gson:6.5.0.Final'
 }
 
 repositories {

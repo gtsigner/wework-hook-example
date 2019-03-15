@@ -12,22 +12,29 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="30dp"
         android:orientation="vertical"
         android:padding="14dp">
 
         <android.support.design.widget.TextInputEditText
+            android:id="@+id/et_uri"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/http_xxx_3008" />
 
         <android.support.design.widget.TextInputEditText
+            android:id="@+id/et_appid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/appid" />
 
+        <CheckBox
+            android:id="@+id/ckAutoConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自动重连" />
+
         <Button
-            android:id="@+id/button"
+            android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save" />
@@ -67,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_reciveId"
-                android:text="6667434997889862043" />
+                android:text="" />
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/et_test_msg"
@@ -81,23 +88,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/test_send_msg" />
 
-            <Button
-                android:id="@+id/btn_send_all"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/msg_send_all" />
 
             <Button
                 android:id="@+id/btn_get_conversion_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="获取通讯录" />
-
-            <Button
-                android:id="@+id/btn_get_conversion_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="获取群成员" />
 
         </LinearLayout>
 

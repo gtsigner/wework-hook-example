@@ -2,6 +2,7 @@ package com.wework.xposed.wework.hooker
 
 import com.wework.xposed.wework.WkGlobal
 import com.wework.xposed.common.bean.Member
+import com.wework.xposed.wework.util.MessageUtil
 import com.wework.xposed.wework.util.ServiceUtil
 import com.wework.xposed.wework.wxapi.ConversationApi
 import de.robv.android.xposed.XC_MethodHook
@@ -14,40 +15,6 @@ object MessageHooker : Hooker {
 
     }
 
-
-    /**
-     * 类下相互转化
-     * 放入实体类Model：com.tencent.wework.foundation.model.Message
-     * 返回数据类型：com.tencent.wework.foundation.model.pb.WwRichMessage$RichMessage
-     */
-    private fun convertWwMessageIMessageToWwRichMessageIRichMessage(message: Any): Any {
-        val msg = XposedHelpers.callMethod(message, "getInfo") as Any
-        val mNativeHandle = XposedHelpers.getLongField(message, "mNativeHandle")
-        val bytes = XposedHelpers.callMethod(message, "nativeGetInfo", mNativeHandle) as ByteArray
-
-        //富文本类
-        val richMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$RichMessage", WkGlobal.workLoader)
-        val textMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$TextMessage", WkGlobal.workLoader)
-        val riMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$Message", WkGlobal.workLoader)
-        val atMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$AtMessage", WkGlobal.workLoader)
-
-
-        //解析
-        var res = XposedHelpers.callStaticMethod(textMessage, "parseFrom", bytes)
-        var res2 = XposedHelpers.callStaticMethod(richMessage, "parseFrom", bytes)
-        var res3 = XposedHelpers.callStaticMethod(riMessage, "parseFrom", bytes)
-        var res4 = XposedHelpers.callStaticMethod(atMessage, "parseFrom", bytes)
-        XposedBridge.log("Rich:$res#Text:$res2#Rim:$res3#At:$res4")
-
-        //后面的参数是字节
-        val content = XposedHelpers.getObjectField(msg, "content") as ByteArray
-        res = XposedHelpers.callStaticMethod(textMessage, "parseFrom", content)
-        res2 = XposedHelpers.callStaticMethod(richMessage, "parseFrom", content)
-        res3 = XposedHelpers.callStaticMethod(riMessage, "parseFrom", content)
-        res4 = XposedHelpers.callStaticMethod(atMessage, "parseFrom", content)
-
-        return res
-    }
 
     /**
      * 放入实体类Model：com.tencent.wework.foundation.model.Message
@@ -87,8 +54,7 @@ object MessageHooker : Hooker {
         } else if (contentType == 14) {
             //图片消息
         }
-        convertWwMessageIMessageToWwRichMessageIRichMessage(message)
-
+        MessageUtil.convertWwMessageIMessageToWwRichMessageIRichMessage(message)
         return msg
     }
 
@@ -125,7 +91,6 @@ object MessageHooker : Hooker {
 
     //1.转化消息
     // java.lang.Class/MessageItem@public static java.lang.CharSequence efd.a(long,com.tencent.wework.foundation.model.pb.WwRichmessage$RichMessage,android.graphics.Paint)->Data->1
-
 
 
     /**
