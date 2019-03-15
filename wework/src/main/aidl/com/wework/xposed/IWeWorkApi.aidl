@@ -10,5 +10,5 @@ interface IWeWorkApi {
     String getConversationById(long id);
     String getConversationUsers(long id);
     //发送消息
-    Boolean sendMessage(long id,String message);
+    int sendMessage(long id,String message);
 }

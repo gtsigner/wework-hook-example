@@ -1,9 +1,12 @@
 package com.wework.xposed.wework.wxapi
 
+import android.os.Looper
 import com.wework.xposed.common.bean.ContactGroup
 import com.wework.xposed.common.bean.GroupMember
+import com.wework.xposed.common.utils.CheckUtil
 import com.wework.xposed.core.Logger
 import com.wework.xposed.wework.WkGlobal
+import com.wework.xposed.wework.WkObject
 import com.wework.xposed.wework.util.ServiceUtil
 import com.wework.xposed.wework.hooker.MessageHooker
 import com.wework.xposed.wework.util.ConversationUtil
@@ -18,11 +21,44 @@ object ConversationApi {
 
     fun sync(id: Long = 0) {
         //Sync
-        Logger.info("ConversationApi","Sync")
+        Logger.info("ConversationApi", "Sync")
         val service = ServiceUtil.getConversationServiceInstance()
         XposedHelpers.callMethod(service, "Sync", id)
     }
 
+    fun sendMessageToAll(message: String) {
+        val cls = ConversationApi.getConversationList()
+        cls.forEach {
+            sendTextMessageByLocalId(it.id, message)
+        }
+    }
+
+
+    /**
+     * 发送文字消息
+     */
+    fun sendTextMessageByLocalId(convLocalid: Long, message: String) {
+        val messageManager = WkGlobal.classLoader.loadClass(WkObject.MessageSender.C.MessageManager)
+        //上下文
+        val externalGroupMessageListActivity = WkGlobal.classLoader.loadClass(WkObject.MessageSender.C.ExternalGroupMessageListActivity)
+        val activityObj = externalGroupMessageListActivity.newInstance()
+        //public static boolean a(Context context, long j, CharSequence charSequence, boolean z)
+        val callRes = XposedHelpers.callStaticMethod(messageManager, WkObject.MessageSender.M.GroupTextSend, activityObj, convLocalid, message, false) as Boolean
+        XposedBridge.log("调用结果：$callRes")
+    }
+
+    /**
+     * 发送文字消息
+     */
+    fun sendTextMessageByRemoteId(rid: Long, message: String) {
+        val messageManager = WkGlobal.classLoader.loadClass(WkObject.MessageSender.C.MessageManager)
+        //上下文
+        val externalGroupMessageListActivity = WkGlobal.classLoader.loadClass(WkObject.MessageSender.C.ExternalGroupMessageListActivity)
+        val activityObj = externalGroupMessageListActivity.newInstance()
+        //public static boolean a(Context context, long j, CharSequence charSequence, boolean z)
+        val callRes = XposedHelpers.callStaticMethod(messageManager, WkObject.MessageSender.M.GroupTextSend, activityObj, rid, message, false) as Boolean
+        XposedBridge.log("调用结果：$callRes")
+    }
 
     /**
      * 获取联系人
@@ -40,7 +76,6 @@ object ConversationApi {
      * 获取联系人
      */
     fun getConversationList(): ArrayList<ContactGroup> {
-        //绘画服务
         val conversationService = WkGlobal.classLoader.loadClass("com.tencent.wework.foundation.logic.ConversationService")
         val conversationItem = WkGlobal.classLoader.loadClass("com.tencent.wework.msg.model.ConversationItem")
 

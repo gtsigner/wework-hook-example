@@ -21,6 +21,7 @@ class App : Application() {
             return
         }
         Mainer.start()
+        Mainer.getWorkApi()?.sayHello()
     }
 
     override fun onTerminate() {

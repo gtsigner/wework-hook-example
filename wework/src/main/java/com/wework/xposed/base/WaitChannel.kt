@@ -4,7 +4,8 @@ package com.wework.xposed.base
  * 用 Java 实现的一个安全的 Wait Channel, 用来让若干线程安全地阻塞到事件结束
  */
 class WaitChannel {
-    @Volatile private var done = false
+    @Volatile
+    private var done = false
     private val channel = java.lang.Object()
 
     private val current: Long
@@ -25,7 +26,6 @@ class WaitChannel {
 
     fun done() {
         if (done) return
-
         synchronized(channel) {
             done = true
             channel.notifyAll()

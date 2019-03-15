@@ -22,13 +22,7 @@ object TaskHandler {
     }
 
     init {
-        WkGlobal.weWorkService.all(WkClientType.WeWork, object : IWeWorkEmitListener.Stub() {
-            override fun callback(senderType: Int, event: String, data: String) {
-                Logger.debug("微信端收到指令", "Sender=$senderType,Event=$event,Data=$data\n")
-                //转发到主进程进行处理
-                TaskHandler.handler.sendMessage(TaskHandler.buildMessage(senderType, event, data))
-            }
-        })
+
     }
 
     /**
@@ -49,53 +43,52 @@ object TaskHandler {
             MessageType.IntvalTime -> {
                 val user = ProfileApi.getCurrentLoginUserProfile()
                 //发送数据到指定的客户端
-                WkGlobal.weWorkService.send(WkClientType.Client, "UserLogin", JSON.toJSONString(user))
+                //WkGlobal.weWorkService.send(WkClientType.Client, "UserLogin", JSON.toJSONString(user))
             }
             MessageType.MessageCall -> {
                 val taskMessage = mess.obj as TaskMessage
                 //获取具体的行为
-                when (taskMessage.event) {
-                    //获取联系人列表
-                    WkEvent.WK_CMD_GET_CONVERSATION_LIST -> {
-                        val cls = ConversationApi.getConversationList()
-                        WkGlobal.weWorkService.send(WkClientType.Client, "ConversationList", JSON.toJSONString(cls))
-                    }
-                    //获取用户信息
-                    WkEvent.WK_CMD_GET_LOGIN_INFO -> {
-                        val user = ProfileApi.getCurrentLoginUserProfile()
-                        WkGlobal.weWorkService.send(WkClientType.Client, "UserLogin", JSON.toJSONString(user))
-                    }
-                    //获取
-                    WkEvent.WK_CMD_GET_CONVERSATION_BY_ID -> {
-                        val contact = ConversationApi.getConversationItemFromRemoteId(taskMessage.jsonObj.getLong("id"))
-                        WkGlobal.weWorkService.send(WkClientType.Client, "ConversationItem", JSON.toJSONString(contact))
-                    }
-                    //获取用户信息
-                    WkEvent.WK_CMD_GET_CONVERSATION_USERS_BY_ID -> {
-                        val contact = ConversationApi.getConversationItemFromRemoteId(taskMessage.jsonObj.getLong("id"))
-                        WkGlobal.weWorkService.send(WkClientType.Client, "ConversationItem", JSON.toJSONString(contact))
-                    }
-                    //发送消息
-                    WkEvent.WK_CMD_SEND_MESSAGE -> {
-                        val msg = JSON.parseObject(taskMessage.data, com.wework.xposed.common.bean.Message::class.java)
-                        //检测id
-                        if (msg.reciverId == 0.toLong()) {
-                            val cls = ConversationApi.getConversationList()
-                            cls.forEach {
-                                com.wework.xposed.wework.services.Message.sendTextMessageToGroup(it.id, msg.message)
-                            }
-                        } else {
-                            com.wework.xposed.wework.services.Message.sendTextMessageToGroup(msg.reciverId, msg.message)
-                        }
-                    }
-                }
-
+//                when (taskMessage.event) {
+//                    //获取联系人列表
+//                    WkEvent.WK_CMD_GET_CONVERSATION_LIST -> {
+//                        val cls = ConversationApi.getConversationList()
+//                        WkGlobal.weWorkService.send(WkClientType.Client, "ConversationList", JSON.toJSONString(cls))
+//                    }
+//                    //获取用户信息
+//                    WkEvent.WK_CMD_GET_LOGIN_INFO -> {
+//                        val user = ProfileApi.getCurrentLoginUserProfile()
+//                        WkGlobal.weWorkService.send(WkClientType.Client, "UserLogin", JSON.toJSONString(user))
+//                    }
+//                    //获取
+//                    WkEvent.WK_CMD_GET_CONVERSATION_BY_ID -> {
+//                        val contact = ConversationApi.getConversationItemFromRemoteId(taskMessage.jsonObj.getLong("id"))
+//                        WkGlobal.weWorkService.send(WkClientType.Client, "ConversationItem", JSON.toJSONString(contact))
+//                    }
+//                    //获取用户信息
+//                    WkEvent.WK_CMD_GET_CONVERSATION_USERS_BY_ID -> {
+//                        val contact = ConversationApi.getConversationItemFromRemoteId(taskMessage.jsonObj.getLong("id"))
+//                        WkGlobal.weWorkService.send(WkClientType.Client, "ConversationItem", JSON.toJSONString(contact))
+//                    }
+//                    //发送消息
+//                    WkEvent.WK_CMD_SEND_MESSAGE -> {
+//                        val msg = JSON.parseObject(taskMessage.data, com.wework.xposed.common.bean.Message::class.java)
+//                        //检测id
+//                        if (msg.reciverId == 0.toLong()) {
+//                            val cls = ConversationApi.getConversationList()
+//                            cls.forEach {
+//                                com.wework.xposed.wework.services.Message.sendTextMessageToGroup(it.id, msg.message)
+//                            }
+//                        } else {
+//                            com.wework.xposed.wework.services.Message.sendTextMessageToGroup(msg.reciverId, msg.message)
+//                        }
+//                    }
+//                }
             }
 
         }
     }
 
-    val handler = Handler(object : Handler.Callback {
+    private val handler = Handler(object : Handler.Callback {
         override fun handleMessage(mess: Message?): Boolean {
             if (mess != null) {
                 TaskHandler.handleMessage(mess)
@@ -105,7 +98,7 @@ object TaskHandler {
     })
     private var isStarted = false
     //5s 一次手动同步
-    private var interval = 5 * 1000
+    private var interval = 10 * 1000
 
     /**
      * 启动任务

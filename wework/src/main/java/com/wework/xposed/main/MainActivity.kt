@@ -46,20 +46,16 @@ class MainActivity : AppCompatActivity() {
             val message = Message()
             message.reciverId = 0
             message.message = txtInput.text.toString()
-            Mainer.service?.send(WkClientType.WeWork, WkEvent.WK_CMD_SEND_MESSAGE, JSON.toJSONString(message))
+            Mainer.service?.workApi?.sendMessage(0, message.message)
             txtInput.text.clear()
-
-            val intent = Intent()
-            intent.action = "com.myapplication.xposed.broadcast.TEST"
-            sendBroadcast(intent)
         }
-
 
         btnTest.setOnClickListener {
             val message = Message()
             message.reciverId = idInput.text.toString().toLong()
             message.message = txtInput.text.toString()
-            Mainer.service?.send(WkClientType.WeWork, WkEvent.WK_CMD_SEND_MESSAGE, JSON.toJSONString(message))
+            Mainer.service?.workApi?.sendMessage(message.reciverId, message.message)
+
             txtInput.text.clear()
         }
         fab.setOnClickListener { view ->
@@ -70,13 +66,15 @@ class MainActivity : AppCompatActivity() {
             if (Mainer.socker.isConnected) {
                 snackbar.setText("服务器已链接")
             }
-            //测试发送消息
-            snackbar.setText(Mainer.service?.workHandler?.sayHello() ?: "??")
+            //获取当前用户信息
+            val user = Mainer.getWorkApi()?.loginUser as String
+            appendLog(user)
         }
         btnGetCAll.setOnClickListener {
             val message = Message()
             //获取联系人列表
-            Mainer.service?.send(WkClientType.WeWork, WkEvent.WK_CMD_GET_CONVERSATION_LIST, JSON.toJSONString(message))
+            val str = Mainer.getWorkApi()?.conversationList as String
+            appendLog(str)
         }
         initEvents()
     }
@@ -87,28 +85,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initEvents() {
-        Mainer.service?.all(WkClientType.Client, object : IWeWorkEmitListener.Stub() {
-            override fun callback(senderType: Int, event: String?, data: String?) {
-                val str = "$senderType,$event,$data"
-                Logger.debug("客户端收到消息", str)
-                runOnUiThread {
-                    if (event == "UserLogin") {
-                        val username = JSON.parseObject(data).getString("realname")
-                        tvUsername.text = username
-                        return@runOnUiThread
-                    }
-                    if (counter % 20 == 0) {
-                        etLogs.setText("自动清空")
-                        //每20次清空一次
-                    }
-                    etLogs.append(str + "\n")
-                    etLogs.setSelection(etLogs.text.length)
-                    counter++
-                }
-            }
-        })
+
     }
 
+    //      Looper.prepare()
+    private fun appendLog(str: String) {
+        runOnUiThread {
+            if (counter % 20 == 0) {
+                etLogs.setText("自动清空")
+                //每20次清空一次
+            }
+            etLogs.append(str + "\n")
+            etLogs.setSelection(etLogs.text.length)
+            counter++
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

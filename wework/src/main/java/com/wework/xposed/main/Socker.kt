@@ -71,12 +71,12 @@ class Socker {
         }
         socket.on("pong") {
             Logger.debug("pong", "激活PONG")
-            val ack = it[it.size - 1] as Ack
-            ack.call("Success Pong")
+//            val ack = it[it.size - 1] as Ack
+//            ack.call("Success Pong")
         }
         socket.on("get_conversation_list") {
             Logger.debug("get_conversation_list", "get_conversation_list")
-            
+
 
         }
     }

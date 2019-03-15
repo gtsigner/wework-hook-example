@@ -7,8 +7,8 @@ import android.content.IntentFilter
 import com.wework.xposed.core.Logger
 import com.wework.xposed.core.WeWorkService
 import com.wework.xposed.wework.WkGlobal
-import com.wework.xposed.wework.WkHandler
 import com.wework.xposed.wework.WkObject
+import com.wework.xposed.wework.WorkApi
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 
@@ -23,7 +23,9 @@ object InitHooker : Hooker {
                 WkGlobal.wkFinishLoaded = true
 
                 val service = WeWorkService.getService()
-                service?.setWorkhHandler(WkHandler())
+
+                service?.workApi = WorkApi()
+
 
                 val reciver = object : BroadcastReceiver() {
                     override fun onReceive(p0: Context?, p1: Intent?) {
