@@ -21,19 +21,9 @@ object InitHooker : Hooker {
                 WkGlobal.ctx = param?.thisObject as Context
                 Logger.info("Application", "企业微信初始化成功")
                 WkGlobal.wkFinishLoaded = true
-
+                //注册服务
                 val service = WeWorkService.getService()
-
                 service?.workApi = WorkApi()
-
-
-                val reciver = object : BroadcastReceiver() {
-                    override fun onReceive(p0: Context?, p1: Intent?) {
-                        Logger.info("接受", "$p1")
-                    }
-                }
-                val intentFilter = IntentFilter("com.myapplication.xposed.broadcast.TEST")
-                WkGlobal.ctx.registerReceiver(reciver, intentFilter)
             }
         })
     }

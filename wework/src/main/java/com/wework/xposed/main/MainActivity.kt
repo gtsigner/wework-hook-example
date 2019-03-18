@@ -52,18 +52,25 @@ class MainActivity : AppCompatActivity() {
         mBtnSave = findViewById<View>(R.id.btn_save) as Button
 
 
-        snackbar = Snackbar.make(mBtnSave, "链接断开,正在重新链接....", Snackbar.LENGTH_LONG).setAction("Action", null)
+        val share = getSharedPreferences(Mainer.SHARE_PRE_NAME, Context.MODE_PRIVATE)
+        val uri = share.getString("SETTINGS_SOCKET_URI", "http://192.168.10.161:3008") as String
+        val appid = share.getString("SETTINGS_SOCKET_APPID", "appid") as String
+        val connected = share.getBoolean("SETTINGS_SOCKET_AUTO", true)
+        //获取配置
+        val setting = SocketSettings()
+        setting.appId = appid
+        setting.uri = URI(uri)
+        setting.reconnected = connected
+        app.mainer.start(setting)
 
+
+
+        snackbar = Snackbar.make(mBtnSave, "链接断开,正在重新链接....", Snackbar.LENGTH_LONG).setAction("Action", null)
         mBtnSave.setOnClickListener {
             saveSettings(etUri.text.toString(), etAppid.text.toString(), autoConnect.isChecked)
             Toast.makeText(this, "保存成功,下次重启后生效", Toast.LENGTH_SHORT).show()
         }
 
-        //初始化信息
-        val share = getSharedPreferences(Mainer.SHARE_PRE_NAME, Context.MODE_PRIVATE)
-        val uri = share.getString("SETTINGS_SOCKET_URI", "http://192.168.10.161:3008") as String
-        val appid = share.getString("SETTINGS_SOCKET_APPID", "appid") as String
-        val connected = share.getBoolean("SETTINGS_SOCKET_AUTO", true)
         etAppid.setText(appid)
         etUri.setText(uri)
         autoConnect.isChecked = connected

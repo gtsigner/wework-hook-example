@@ -1,7 +1,7 @@
 package com.wework.xposed.wework.util
 
-import com.wework.xposed.wework.WkGlobal
-import de.robv.android.xposed.XposedBridge
+import com.wework.xposed.common.bean.Message
+import com.wework.xposed.core.Logger
 import de.robv.android.xposed.XposedHelpers
 
 object MessageUtil {
@@ -10,31 +10,47 @@ object MessageUtil {
      * 放入实体类Model：com.tencent.wework.foundation.model.Message
      * 返回数据类型：com.tencent.wework.foundation.model.pb.WwRichMessage$RichMessage
      */
-    fun convertWwMessageIMessageToWwRichMessageIRichMessage(message: Any): Any {
-        val msg = XposedHelpers.callMethod(message, "getInfo") as Any
-        val mNativeHandle = XposedHelpers.getLongField(message, "mNativeHandle")
-        val bytes = XposedHelpers.callMethod(message, "nativeGetInfo", mNativeHandle) as ByteArray
+    fun convertWwMessageIMessageToMessage(message: Any): Message {
+        val info = XposedHelpers.callMethod(message, "getInfo") as Any
+        val mmsg = getWwMessageMessageToMessage(info)
+        //获取
+        Logger.debug("Info", "$mmsg")
+        return mmsg
+    }
 
-        //富文本类
-        val richMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$RichMessage", WkGlobal.workLoader)
-        val textMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$TextMessage", WkGlobal.workLoader)
-        val riMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$Message", WkGlobal.workLoader)
-        val atMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwRichmessage\$AtMessage", WkGlobal.workLoader)
-        val rMessage = XposedHelpers.findClass("com.tencent.wework.foundation.model.pb.WwMessage\$Message", WkGlobal.workLoader)
-
-
-        //解析
-        var res = XposedHelpers.callStaticMethod(textMessage, "parseFrom", bytes)
-        var res2 = XposedHelpers.callStaticMethod(richMessage, "parseFrom", bytes)
-        var res3 = XposedHelpers.callStaticMethod(riMessage, "parseFrom", bytes)
-        var res4 = XposedHelpers.callStaticMethod(atMessage, "parseFrom", bytes)
-        var res5 = XposedHelpers.callStaticMethod(rMessage, "parseFrom", bytes)
-
-
+    private fun getWwMessageMessageToMessage(info: Any): Message {
+        //群ID
+        val id = XposedHelpers.getObjectField(info, "id") as Long
+        //会话的ID
+        val conversationId = XposedHelpers.getObjectField(info, "conversationId") as Long
+        //消息类型 2 文字消息
+        val contentType = XposedHelpers.getObjectField(info, "contentType") as Int
+        //聊天人类型 0 私聊，1群聊
+        val conversationType = XposedHelpers.getObjectField(info, "convType") as Int
+        //发送人信息
+        val sender = XposedHelpers.getObjectField(info, "sender") as Long
+        //消息状态
+        val state = XposedHelpers.getObjectField(info, "state") as Int
+        //发送时间
+        val sendTime = XposedHelpers.getIntField(info, "sendTime")
         //后面的参数是字节
-        val content = XposedHelpers.getObjectField(msg, "content") as ByteArray
-        XposedBridge.log("Rich:$res#Text:$res2#Rim:$res3#At:$res4,$content,$res5")
+        val content = XposedHelpers.getObjectField(info, "content") as ByteArray
 
-        return res
+        //进制转化
+        val fuck = ArrayList<Byte>()
+        content.forEachIndexed { index, byte ->
+            if (index < 8) return@forEachIndexed
+            fuck.add(byte)
+        }
+        Logger.debug("Message", String(fuck.toByteArray()))
+        val msend = Message()
+        msend.id = id
+        msend.message = String(fuck.toByteArray())
+        msend.conversationType = conversationType
+        msend.conversationId = conversationId
+        msend.senderId = sender
+        msend.sendTime = sendTime
+        msend.messageType = contentType
+        return msend
     }
 }

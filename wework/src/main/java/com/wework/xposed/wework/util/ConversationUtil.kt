@@ -5,6 +5,7 @@ import com.wework.xposed.common.bean.GroupMember
 import com.wework.xposed.common.bean.Member
 import com.wework.xposed.core.Logger
 import com.wework.xposed.wework.hooker.MessageHooker
+import com.wework.xposed.wework.wxapi.MemberApi
 import de.robv.android.xposed.XposedHelpers
 import java.util.ArrayList
 
@@ -13,6 +14,7 @@ object ConversationUtil {
      * 获取联系嗯信息
      */
     fun covertConversionItemInfoToContactGroup(conversionItemInstance: Any): ContactGroup? {
+        //avd 就是一个Conversation实例
         val aVd = XposedHelpers.callMethod(conversionItemInstance, "aVd")
         val group = getGroupInfoByConversionGroupEntry(aVd) ?: return null
         val members = getUserListByConversionGroupEntry(aVd)
@@ -113,7 +115,7 @@ object ConversationUtil {
         userList.forEach { user ->
             val userInfo = XposedHelpers.callMethod(user, "getInfo") ?: return@forEach
             //获取数据信息
-            val member = MessageHooker.convertUserToMember(userInfo)
+            val member = MemberApi.convertUserToMember(userInfo)
             val gpm = GroupMember()
             gpm.id = member.id
             gpm.acctid = member.acctid

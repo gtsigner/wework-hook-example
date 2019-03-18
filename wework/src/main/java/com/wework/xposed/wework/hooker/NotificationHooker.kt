@@ -1,10 +1,14 @@
 package com.wework.xposed.wework.hooker
 
+import com.alibaba.fastjson.JSON
+import com.wework.xposed.common.bean.Message
 import com.wework.xposed.core.Logger
 import com.wework.xposed.wework.WkGlobal
 import com.wework.xposed.wework.WkObject
 import com.wework.xposed.wework.util.HookUtil
 import com.wework.xposed.wework.util.MessageUtil
+import com.wework.xposed.wework.wxapi.ConversationApi
+import com.wework.xposed.wework.wxapi.MemberApi
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -29,9 +33,15 @@ object NotificationHooker : Hooker {
                 val str = XposedHelpers.getObjectField(notificationInstance, "mDetail2") ?: "none"
                 if (type == 2 && message != null) {
                     //收到消息
-                    message = MessageUtil.convertWwMessageIMessageToWwRichMessageIRichMessage(message)
-                    Logger.info("收到消息通知", "$message 内容:$message")
-                    WkGlobal.weWorkService.clientApi?.onReciveMessage(100L, "Fuckyou$message")
+                    val endMsg = MessageUtil.convertWwMessageIMessageToMessage(message) as Message
+                    val member = MemberApi.getMemberInfoById(endMsg.senderId, endMsg.conversationId)
+                    endMsg.sender = member
+                    if (member != null) {
+                        endMsg.senderId = member.id
+                    }
+                    Logger.info("收到消息通知", "$endMsg 内容:$message,$member")
+                    //消息回调
+                    WkGlobal.weWorkService.clientApi?.onReciveMessage(100L, JSON.toJSONString(endMsg))
                 }
             }
         })

@@ -10,12 +10,10 @@ import com.wework.xposed.core.Logger
 import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
-import io.socket.emitter.Emitter
 import org.json.JSONObject
 import java.lang.Exception
-import java.net.URI
-import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.thread
 
 class Socker(val setting: SocketSettings) {
     companion object Event {
@@ -38,7 +36,7 @@ class Socker(val setting: SocketSettings) {
 
     //是否已经授权
     var isAuthorization = false
-    val options = IO.Options()
+    private val options = IO.Options()
 
     init {
         options.query = "client_type=wework&appid=${setting.appId}"
@@ -72,9 +70,17 @@ class Socker(val setting: SocketSettings) {
         socket.on(Socket.EVENT_DISCONNECT) {
             isConnected = false
             Logger.info(TAG, "服务器断开了链接")
+            //发送消息到群聊
+            //Mainer.getWorkApi()?.sendTextMessage()
         }
         socket.on(Socket.EVENT_CONNECT) {
             Logger.info(TAG, "服务端已经链接成功了")
+            //注册当前用户信息
+            //registerAccount()
+            thread(true) {
+                Thread.sleep(5000)
+                registerAccount()
+            }
         }
         socket.on(Socket.EVENT_PONG) { args ->
         }
@@ -130,15 +136,7 @@ class Socker(val setting: SocketSettings) {
         }
         socket.on("wk.refresh_app") {
             if (it.isEmpty()) return@on
-            val user = Mainer.getWorkApi()?.loginUser
-            val rooms = Mainer.getWorkApi()?.conversationList
-            //返回Obj
-            //json.put("user", JSON.parse(user))
-            val json = JSONObject()
-            json.put("data", "")
-            json.put("user", user)
-            json.put("list", rooms)
-            socket.emit("wk.register", json)
+            registerAccount()
         }
 
         socket.on("wk.send.text_message") {
@@ -155,6 +153,18 @@ class Socker(val setting: SocketSettings) {
                 ack.call(json)
             }
         }
+    }
+
+    private fun registerAccount() {
+        val user = Mainer.getWorkApi()?.loginUser
+        val rooms = Mainer.getWorkApi()?.conversationList
+        //返回Obj
+        //json.put("user", JSON.parse(user))
+        val json = JSONObject()
+        json.put("data", "")
+        json.put("user", user)
+        json.put("list", rooms)
+        socket.emit("wk.register", json)
     }
 
     fun getSocket(): Socket {

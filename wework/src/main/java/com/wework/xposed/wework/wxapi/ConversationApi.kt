@@ -2,6 +2,7 @@ package com.wework.xposed.wework.wxapi
 
 import com.wework.xposed.common.bean.ContactGroup
 import com.wework.xposed.common.bean.GroupMember
+import com.wework.xposed.common.bean.Member
 import com.wework.xposed.core.Logger
 import com.wework.xposed.wework.WkGlobal
 import com.wework.xposed.wework.WkObject
@@ -88,8 +89,30 @@ object ConversationApi {
         return contact
     }
 
+    /**
+     *通过会话获取convmember
+     */
+    fun getConversationConvMember(conversationId: Long, memberVid: Long): Any? {
+        //call getMemberByVid
+        val conversation = getConversationById(conversationId) ?: return null
+        val res = XposedHelpers.callMethod(conversation, "getMemberByVid", memberVid)
+        Logger.debug("getConversationConvMember", "$res")
+        return res
+    }
+
+    /**
+     * 获取conversation
+     */
+    private fun getConversationById(conversationId: Long): Any? {
+        val engine = ServiceUtil.getConversationEngineInstance()
+        val conversionItemInstance = XposedHelpers.callMethod(engine, "iT", conversationId)
+                ?: return null
+        val aVd = XposedHelpers.callMethod(conversionItemInstance, "aVd")
+        return aVd;
+    }
+
     //不反悔用户信息
-    fun getContactByRemoteId(remoteId: Long): ContactGroup? {
+    private fun getContactByRemoteId(remoteId: Long): ContactGroup? {
         val engine = ServiceUtil.getConversationEngineInstance()
         val obj = XposedHelpers.callMethod(engine, "iT", remoteId) ?: return null
         return ConversationUtil.covertConversionItemInfoToContactGroup(obj)

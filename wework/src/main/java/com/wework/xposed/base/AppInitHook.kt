@@ -38,7 +38,6 @@ class AppInitHook : IXposedHookZygoteInit {
         val amsClsName = "com.android.server.am.ActivityManagerService"
         XposedBridge.hookAllMethods(activityThread, "systemMain", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam?) {
-
                 val classLoader = Thread.currentThread().contextClassLoader//进程的classLoader
 
                 //注册系统服务
@@ -67,7 +66,7 @@ class AppInitHook : IXposedHookZygoteInit {
     @SuppressLint("PrivateApi")
     private fun registerLover() {
         //寻找服务类
-        val ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", WkGlobal.workLoader)
+        val ams = Class.forName("com.android.server.am.ActivityManagerService")
         val classLoader = Thread.currentThread().contextClassLoader
         XposedBridge.hookAllMethods(ams, "main", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam?) {

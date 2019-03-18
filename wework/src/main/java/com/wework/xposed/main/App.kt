@@ -23,17 +23,6 @@ class App : Application() {
             Toast.makeText(this, Companion.ERR_MSG, Toast.LENGTH_SHORT).show()
             return
         }
-        val share = getSharedPreferences(Mainer.SHARE_PRE_NAME, Context.MODE_PRIVATE)
-        val uri = share.getString("SETTINGS_SOCKET_URI", "http://192.168.10.161:3008") as String
-        val appid = share.getString("SETTINGS_SOCKET_APPID", "appid") as String
-        val connected = share.getBoolean("SETTINGS_SOCKET_AUTO", true)
-        //获取配置
-        val setting = SocketSettings()
-        setting.appId = appid
-        setting.uri = URI(uri)
-        setting.reconnected = connected
-        mainer.start(setting)
-
     }
 
     override fun onTerminate() {

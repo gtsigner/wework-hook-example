@@ -62,7 +62,8 @@ class WeWorkService(private val context: Context) : IWeWorkService.Stub() {
             //注册
             val svcManger = XposedHelpers.findClass("android.os.ServiceManager", classLoader)
             val wkService = WeWorkService(context)
-            //注册系统服务
+
+            //如果是新版本，x需要调用其他api注册 SecurityException
             XposedHelpers.callStaticMethod(svcManger, "addService", serviceName, wkService, true)
         }
 
@@ -72,7 +73,8 @@ class WeWorkService(private val context: Context) : IWeWorkService.Stub() {
          * @return 服务名称
          */
         private val serviceName: String
-            get() = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) "user." else "") + "WeWorkService"
+            get() = "user.WeWorkService"
+        //get() = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) "user." else "") + "WeWorkService"
 
 
         @SuppressLint("PrivateApi")
