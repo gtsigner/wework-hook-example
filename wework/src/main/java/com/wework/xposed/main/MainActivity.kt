@@ -59,11 +59,13 @@ class MainActivity : AppCompatActivity() {
         //获取配置
         val setting = SocketSettings()
         setting.appId = appid
-        setting.uri = URI(uri)
+        try {
+            setting.uri = URI(uri)
+        } catch (ex: Exception) {
+            setting.uri = URI("http://192.168.10.161:3008")
+        }
         setting.reconnected = connected
         app.mainer.start(setting)
-
-
 
         snackbar = Snackbar.make(mBtnSave, "链接断开,正在重新链接....", Snackbar.LENGTH_LONG).setAction("Action", null)
         mBtnSave.setOnClickListener {
