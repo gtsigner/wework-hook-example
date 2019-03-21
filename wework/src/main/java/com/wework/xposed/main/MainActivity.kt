@@ -56,16 +56,7 @@ class MainActivity : AppCompatActivity() {
         val uri = share.getString("SETTINGS_SOCKET_URI", "http://192.168.10.161:3008") as String
         val appid = share.getString("SETTINGS_SOCKET_APPID", "appid") as String
         val connected = share.getBoolean("SETTINGS_SOCKET_AUTO", true)
-        //获取配置
-        val setting = SocketSettings()
-        setting.appId = appid
-        try {
-            setting.uri = URI(uri)
-        } catch (ex: Exception) {
-            setting.uri = URI("http://192.168.10.161:3008")
-        }
-        setting.reconnected = connected
-        app.mainer.start(setting)
+
 
         snackbar = Snackbar.make(mBtnSave, "链接断开,正在重新链接....", Snackbar.LENGTH_LONG).setAction("Action", null)
         mBtnSave.setOnClickListener {
@@ -91,8 +82,8 @@ class MainActivity : AppCompatActivity() {
             val str = Mainer.getWorkApi()?.conversationList ?: ""
             appendLog(str)
         }
-
-        app.mainer.socker.getSocket().on(Socket.EVENT_CONNECT) {
+        val socket = app.mainer.socker?.getSocket()
+        socket?.on(Socket.EVENT_CONNECT) {
             //链接成功
             runOnUiThread {
                 val str = "服务器链接成功"
@@ -101,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        app.mainer.socker.getSocket().on(Socket.EVENT_DISCONNECT) {
+        socket?.on(Socket.EVENT_DISCONNECT) {
             runOnUiThread {
                 val str = "服务器链接断开..."
                 mBtnSave.text = str
@@ -121,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     private fun testConnect() {
         app.mainer.connect()
         //获取当前用户信息
-        if (app.mainer.socker.isConnected) {
+        if (app.mainer.socker!!.isConnected) {
             mBtnSave.text = "服务器链接成功"
             snackbar.setText("链接成功").show()
         }

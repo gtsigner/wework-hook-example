@@ -7,29 +7,31 @@ import com.wework.xposed.core.WeWorkService
 
 object Mainer {
     val service = WeWorkService.getService()
-    lateinit var socker: Socker
+    public var socker: Socker? = null
     private val clientApi = ClientApi()
-    var running = false
+    private var running = false
     const val SHARE_PRE_NAME = "SETTINGS"
 
     init {
         clientApi.callback = object : Callback {
             override fun onReciveMessage(conversationId: Long, message: String) {
                 //callback
-                socker.getSocket().emit("wk.receive.message", message)
+                socker?.getSocket()?.emit("wk.receive.message", message)
                 Logger.debug("收到消息", message)
             }
         }
     }
 
     fun start(setting: SocketSettings) {
-        socker = Socker(setting)
+        if (null == socker) {
+            socker = Socker(setting)
+        }
         service?.clientApi = clientApi
     }
 
     fun connect() {
         running = true
-        socker.connect()
+        socker?.connect()
     }
 
     fun getWorkApi(): IWeWorkApi? {
